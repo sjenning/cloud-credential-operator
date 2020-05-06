@@ -44,15 +44,34 @@ const (
 	CloudCredOperatorConfigMap = "cloud-credential-operator-config"
 )
 
-// NOTE: Run "make" to regenerate code after modifying this file
+// NOTE: Run "make update" to regenerate code after modifying this file
+
+const (
+	SecretStorageDestinationType         = "Secret"
+	ServiceAccountStorageDestinationType = "ServiceAccount"
+)
 
 // CredentialsRequestSpec defines the desired state of CredentialsRequest
 type CredentialsRequestSpec struct {
+	// RefType contains the type of reference that should be used for the credentials
+	RefType string `json:"refType"`
+
 	// SecretRef points to the secret where the credentials should be stored once generated.
-	SecretRef corev1.ObjectReference `json:"secretRef"`
+	// +optional
+	SecretRef corev1.ObjectReference `json:"secretRef,omitempty"`
+
+	// SecretStorageDestination specifies a serviceaccount to which the credentials will be linked
+	// This is currently only supported on AWS
+	// +optional
+	ServiceAccountRef *ServiceAccountStorageDestination `json:"serviceAccountRef,omitempty"`
 
 	// ProviderSpec contains the cloud provider specific credentials specification.
 	ProviderSpec *runtime.RawExtension `json:"providerSpec,omitempty"`
+}
+
+type ServiceAccountStorageDestination struct {
+	Namespace string `json:"namespace"`
+	Name      string `json:"name"`
 }
 
 // CredentialsRequestStatus defines the observed state of CredentialsRequest
